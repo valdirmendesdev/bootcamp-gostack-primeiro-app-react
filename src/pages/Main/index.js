@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { FaGithubAlt, FaPlus, FaSpinner } from 'react-icons/fa';
-import { Link } from "react-router-dom";
+import { Link } from 'react-router-dom';
 
 import api from '../../services/api';
 
@@ -11,7 +11,8 @@ export default class Main extends Component {
   state = {
     newRepo: '',
     repositories: [],
-    loading: false
+    isLoading: false,
+    invalidInput: false
   };
 
   componentDidMount() {
@@ -41,25 +42,38 @@ export default class Main extends Component {
   handleSubmit = async e => {
     e.preventDefault();
 
-    this.setState({ loading: true });
+    try {
+      const { newRepo, repositories } = this.state;
 
-    const { newRepo, repositories } = this.state;
+      const repository = repositories.find(r => r.name === newRepo);
 
-    const response = await api.get(`/repos/${newRepo}`);
+      if (repository) {
+        throw new Error('Repositório duplicado');
+      }
 
-    const data = {
-      name: response.data.full_name
-    };
+      this.setState({ isLoading: true });
+      const response = await api.get(`/repos/${newRepo}`);
+      const data = {
+        name: response.data.full_name
+      };
 
-    this.setState({
-      repositories: [...repositories, data],
-      newRepo: '',
-      loading: false
-    });
+      this.setState({
+        repositories: [...repositories, data],
+        newRepo: '',
+        isLoading: false,
+        invalidInput: false,
+        repositoryInputError: ''
+      });
+    } catch (error) {
+      this.setState({
+        isLoading: false,
+        invalidInput: true
+      });
+    }
   };
 
   render() {
-    const { newRepo, loading, repositories } = this.state;
+    const { newRepo, isLoading, repositories, invalidInput } = this.state;
 
     return (
       <Container>
@@ -67,15 +81,15 @@ export default class Main extends Component {
           <FaGithubAlt />
           Repositórios
         </h1>
-        <Form onSubmit={this.handleSubmit}>
+        <Form onSubmit={this.handleSubmit} invalidInput={invalidInput}>
           <input
             type="text"
             placeholder="Adicionar repositório"
             value={newRepo}
             onChange={this.handleInputChage}
           />
-          <SubmitButton loading={loading}>
-            {loading ? (
+          <SubmitButton isLoading={isLoading}>
+            {isLoading ? (
               <FaSpinner color="#FFF" size={14} />
             ) : (
               <FaPlus color="#FFF" size={14} />
@@ -86,7 +100,9 @@ export default class Main extends Component {
           {repositories.map(repository => (
             <li key={repository.name}>
               <span>{repository.name}</span>
-              <Link to={`/repository/${encodeURIComponent(repository.name)}`}>Detalhes</Link>
+              <Link to={`/repository/${encodeURIComponent(repository.name)}`}>
+                Detalhes
+              </Link>
             </li>
           ))}
         </List>

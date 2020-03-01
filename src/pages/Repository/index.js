@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import api from '../../services/api';
 
 import Container from '../../components/Container';
-import { Loading, Owner, IssueList } from './styles';
+import { Loading, Owner, IssueList, FilterList, IssueFilter } from './styles';
 
 export default class Repository extends Component {
   static propTypes = {
@@ -18,26 +18,23 @@ export default class Repository extends Component {
   state = {
     repository: {},
     issues: [],
-    loading: true
+    loading: true,
+    selectedState: 'all',
+    issuesFilters: [
+      { state: 'all', title: 'Todos' },
+      { state: 'open', title: 'Abertas' },
+      { state: 'closed', title: 'Fechadas' }
+    ]
   };
 
   async componentDidMount() {
     const { match } = this.props;
     const repoName = decodeURIComponent(match.params.repository);
 
-    console.log(repoName);
-
     const [repository, issues] = await Promise.all([
       api.get(`/repos/${repoName}`),
-      api.get(`/repos/${repoName}/issues`, {
-        params: {
-          state: 'open',
-          per_page: 5
-        }
-      })
+      this.getIssues(repoName, 'all')
     ]);
-
-    // console.log(repository)
 
     this.setState({
       repository: repository.data,
@@ -46,8 +43,33 @@ export default class Repository extends Component {
     });
   }
 
+  async getIssues(repoName, issuesState) {
+    return api.get(`/repos/${repoName}/issues?`, {
+      params: {
+        state: issuesState,
+        per_page: 5
+      }
+    });
+  }
+
+  async handleChangeIssuesFilter(issuesState) {
+    const { repository } = this.state;
+    const issues = await this.getIssues(repository.full_name, issuesState);
+
+    this.setState({
+      issues: issues.data,
+      selectedState: issuesState
+    });
+  }
+
   render() {
-    const { repository, issues, loading } = this.state;
+    const {
+      repository,
+      issues,
+      loading,
+      issuesFilters,
+      selectedState
+    } = this.state;
 
     if (loading) {
       return <Loading>Carregando...</Loading>;
@@ -61,6 +83,17 @@ export default class Repository extends Component {
           <h1>{repository.name}</h1>
           <p>{repository.description}</p>
         </Owner>
+        <FilterList>
+          {issuesFilters.map(filter => (
+            <IssueFilter
+              key={filter.state}
+              onClick={() => this.handleChangeIssuesFilter(filter.state)}
+              selected={selectedState === filter.state}
+            >
+              {filter.title}
+            </IssueFilter>
+          ))}
+        </FilterList>
         <IssueList>
           {issues.map(issue => (
             <li key={String(issue.id)}>

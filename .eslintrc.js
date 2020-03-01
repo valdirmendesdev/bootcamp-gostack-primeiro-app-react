@@ -30,7 +30,7 @@ module.exports = {
     'react/jsx-filename-extension': [
       'warn',
       {
-        extesions: ['.jsx', '.js']
+        extensions: ['.jsx', '.js']
       }
     ],
     'import/prefer-default-export': 'off'
