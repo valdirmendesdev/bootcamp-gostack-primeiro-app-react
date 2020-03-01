@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 
 import api from '../../services/api';
 
-import { Form, SubmitButton, List } from './styles';
+import { Form, SubmitButton, List, ErrorMessage } from './styles';
 import Container from '../../components/Container';
 
 export default class Main extends Component {
@@ -34,8 +34,10 @@ export default class Main extends Component {
   }
 
   handleInputChage = e => {
+    const { invalidInput } = this.state;
     this.setState({
-      newRepo: e.target.value
+      newRepo: e.target.value,
+      invalidInput: e.target.value === '' ? false : invalidInput
     });
   };
 
@@ -61,8 +63,7 @@ export default class Main extends Component {
         repositories: [...repositories, data],
         newRepo: '',
         isLoading: false,
-        invalidInput: false,
-        repositoryInputError: ''
+        invalidInput: false
       });
     } catch (error) {
       this.setState({
@@ -96,6 +97,9 @@ export default class Main extends Component {
             )}
           </SubmitButton>
         </Form>
+        <ErrorMessage display={invalidInput}>
+          Repositório inválido ou duplicado
+        </ErrorMessage>
         <List>
           {repositories.map(repository => (
             <li key={repository.name}>

@@ -15,6 +15,17 @@ export const Form = styled.form`
   }
 `;
 
+export const ErrorMessage = styled.span`
+  background-color: #f34;
+  color: #eee;
+  border-radius: 0 0 4px 4px;
+  padding: 4px 4px;
+  display: ${props => (props.display ? 'flex' : 'none')};
+  justify-content: center;
+  width: fit-content;
+  margin-left: 4px;
+`;
+
 const rotate = keyframes`
   from {
     transform: rotate(0deg);
