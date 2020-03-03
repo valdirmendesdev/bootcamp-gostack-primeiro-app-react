@@ -52,7 +52,8 @@ export const IssueFilter = styled.li`
   font-size: 16px;
   font-weight: ${props => (props.selected ? 'bold' : 'normal')};
   flex: 1;
-  border: 1px solid #eee;
+  border: 1px solid;
+  border-color: ${props => (props.selected ? '#777' : '#eee')};
   border-radius: 4px;
   justify-content: center;
   text-align: center;
@@ -61,8 +62,6 @@ export const IssueFilter = styled.li`
 `;
 
 export const IssueList = styled.ul`
-  /* padding-top: 30px; */
-  /* margin-top: 30px; */
   border-top: 1px solid #eee;
   list-style: none;
 
@@ -117,5 +116,20 @@ export const IssueList = styled.ul`
       font-size: 12px;
       color: #999;
     }
+  }
+`;
+export const Pagination = styled.div`
+  display: flex;
+  list-style: none;
+  margin-top: 16px;
+  flex-direction: row;
+  justify-content: flex-end;
+
+  li {
+    display: flex;
+    padding: 15px 10px;
+    border: 1px solid #eee;
+    border-radius: 4px;
+    margin: 4px 0 0 4px;
   }
 `;

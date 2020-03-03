@@ -4,7 +4,14 @@ import PropTypes from 'prop-types';
 import api from '../../services/api';
 
 import Container from '../../components/Container';
-import { Loading, Owner, IssueList, FilterList, IssueFilter } from './styles';
+import {
+  Loading,
+  Owner,
+  IssueList,
+  FilterList,
+  IssueFilter,
+  Pagination
+} from './styles';
 
 export default class Repository extends Component {
   static propTypes = {
@@ -19,47 +26,62 @@ export default class Repository extends Component {
     repository: {},
     issues: [],
     loading: true,
-    selectedState: 'all',
+    state: 'all',
     issuesFilters: [
-      { state: 'all', title: 'Todos' },
+      { state: 'all', title: 'Todas' },
       { state: 'open', title: 'Abertas' },
       { state: 'closed', title: 'Fechadas' }
-    ]
+    ],
+    page: 1
   };
 
   async componentDidMount() {
     const { match } = this.props;
     const repoName = decodeURIComponent(match.params.repository);
 
-    const [repository, issues] = await Promise.all([
+    const [repository] = await Promise.all([
       api.get(`/repos/${repoName}`),
-      this.getIssues(repoName, 'all')
+      this.getIssues(repoName, 'all', 1)
     ]);
 
     this.setState({
       repository: repository.data,
-      issues: issues.data,
       loading: false
     });
   }
 
-  async getIssues(repoName, issuesState) {
-    return api.get(`/repos/${repoName}/issues?`, {
+  async getIssues(repoName, state, page) {
+    const issues = await api.get(`/repos/${repoName}/issues?`, {
       params: {
-        state: issuesState,
-        per_page: 5
+        state,
+        per_page: 5,
+        page
       }
+    });
+
+    this.setState({
+      issues: issues.data
     });
   }
 
-  async handleChangeIssuesFilter(issuesState) {
-    const { repository } = this.state;
-    const issues = await this.getIssues(repository.full_name, issuesState);
+  async updateIssues() {
+    const { repository, state, page } = this.state;
+    console.log(state, page);
+    this.getIssues(repository.full_name, state, page);
+  }
 
-    this.setState({
-      issues: issues.data,
-      selectedState: issuesState
+  async handleChangeIssuesFilter(state) {
+    await this.setState({
+      state
     });
+    this.updateIssues();
+  }
+
+  async handlePagination(page) {
+    await this.setState({
+      page
+    });
+    this.updateIssues();
   }
 
   render() {
@@ -68,7 +90,8 @@ export default class Repository extends Component {
       issues,
       loading,
       issuesFilters,
-      selectedState
+      state,
+      page
     } = this.state;
 
     if (loading) {
@@ -88,7 +111,7 @@ export default class Repository extends Component {
             <IssueFilter
               key={filter.state}
               onClick={() => this.handleChangeIssuesFilter(filter.state)}
-              selected={selectedState === filter.state}
+              selected={state === filter.state}
             >
               {filter.title}
             </IssueFilter>
@@ -110,6 +133,18 @@ export default class Repository extends Component {
             </li>
           ))}
         </IssueList>
+        <Pagination>
+          {page > 1 ? (
+            <li onClick={() => this.handlePagination(page - 1)}>
+              &#8592; Página anterior
+            </li>
+          ) : (
+            <></>
+          )}
+          <li onClick={() => this.handlePagination(page + 1)}>
+            Página seguinte &#8594;
+          </li>
+        </Pagination>
       </Container>
     );
   }
