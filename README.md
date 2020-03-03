@@ -3,7 +3,7 @@
 </h1>
 
 <h3 align="center">
-  Desafio 4: Introdução ao React
+  Desafio 5: Primeiro projeto com ReactJS
 </h3>
 
 <p align="center">“Para quem fica melhor a cada dia, ficar pronto é utopia”!</blockquote>
