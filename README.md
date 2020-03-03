@@ -24,7 +24,7 @@
 
 ## :rocket: Sobre o desafio
 
-Neste desafio, desenvolvemos uma aplicação durante aulas do módulo e foi proposto que acrescentássemos algumas funcionalidades à aplicação conforme descrito na seção abaixo. Esse repositório é a minha proposta de solução.
+Neste desafio, desenvolvemos uma aplicação durante aulas do módulo e foi proposto que acrescentássemos algumas funcionalidades a aplicação conforme descrito na seção abaixo. Esse repositório é a minha proposta de solução.
 
 ### Funcionalidades
 
